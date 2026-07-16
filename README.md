@@ -84,20 +84,24 @@ DentaLink stores application data in a normalized SQLite database with the follo
 ## ⚙️ Getting Started
 
 ### 1. Prerequisites
+
 Install **Python 3.12**.
 
 ### 2. Create a virtual environment
+
 ```powershell
 python -m venv venv
 .\venv\Scripts\Activate.ps1
 ```
 
 ### 3. Install dependencies
+
 ```bash
 pip install PyQt6
 ```
 
 ### 4. Run the application
+
 ```bash
 python main.py
 ```
@@ -119,15 +123,18 @@ A successful verification run should complete without errors.
 ## 📦 Packaging for Windows
 
 ### Build standalone executable
+
 ```bash
 pyinstaller DentaLink.spec
 ```
 
 ### Build installer with Inno Setup
+
 1. Install [Inno Setup](https://jrsoftware.org/isinfo.php).
 2. Open `setup.iss` in the Inno Setup compiler and compile.
 
 Or compile from the command line:
+
 ```cmd
 "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" setup.iss
 ```

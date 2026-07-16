@@ -32,7 +32,7 @@ MANIFEST
 *.spec
 
 # Installer distribution
-installer_dist/
+# installer_dist/ is included so the built installer can be tracked.
 
 # SQLite databases (local clinic data)
 *.db
