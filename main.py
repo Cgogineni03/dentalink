@@ -3898,8 +3898,130 @@ class DentaLinkMainWindow(QMainWindow):
         self.save_theme_setting(theme_name)
         self.apply_theme(theme_name)
 
-class LoginWindow(QDialog):
+class FirstLaunchSetupDialog(QDialog):
     def __init__(self):
+        super().__init__()
+        self.setWindowTitle("First Launch Setup")
+        self.setFixedSize(420, 520)
+        theme_name = load_theme_setting()
+        self.setStyleSheet(get_theme_stylesheet(theme_name))
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(28, 20, 28, 20)
+        layout.setSpacing(12)
+
+        title = QLabel("Welcome to DentaLink")
+        title.setFont(QFont("Arial", 16, QFont.Weight.Bold))
+        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        title.setStyleSheet("color: #0371bb; margin-bottom: 12px;")
+        layout.addWidget(title)
+
+        subtitle = QLabel("Please create your clinic and first doctor account.")
+        subtitle.setWordWrap(True)
+        subtitle.setStyleSheet("color: #94A3B8;")
+        layout.addWidget(subtitle)
+
+        self.form_layout = QFormLayout()
+        self.form_layout.setVerticalSpacing(12)
+
+        self.clinic_name_input = QLineEdit()
+        self.clinic_name_input.setPlaceholderText("Clinic Display Name")
+        self.form_layout.addRow("Clinic Name:", self.clinic_name_input)
+
+        self.clinic_user_input = QLineEdit("admin")
+        self.clinic_user_input.setPlaceholderText("Clinic Login Username")
+        self.form_layout.addRow("Clinic Username:", self.clinic_user_input)
+
+        self.clinic_pwd_input = QLineEdit()
+        self.clinic_pwd_input.setEchoMode(QLineEdit.EchoMode.Password)
+        self.clinic_pwd_input.setPlaceholderText("Clinic Password")
+        self.form_layout.addRow("Clinic Password:", self.clinic_pwd_input)
+
+        self.clinic_pwd_confirm = QLineEdit()
+        self.clinic_pwd_confirm.setEchoMode(QLineEdit.EchoMode.Password)
+        self.clinic_pwd_confirm.setPlaceholderText("Confirm Clinic Password")
+        self.form_layout.addRow("Confirm Password:", self.clinic_pwd_confirm)
+
+        separator = QFrame()
+        separator.setFrameShape(QFrame.Shape.HLine)
+        separator.setFrameShadow(QFrame.Shadow.Sunken)
+
+        self.form_layout.addRow(separator)
+
+        self.doctor_name_input = QLineEdit()
+        self.doctor_name_input.setPlaceholderText("Doctor Full Name")
+        self.form_layout.addRow("Doctor Name:", self.doctor_name_input)
+
+        self.doctor_user_input = QLineEdit("dr_admin")
+        self.doctor_user_input.setPlaceholderText("Doctor Login Username")
+        self.form_layout.addRow("Doctor Username:", self.doctor_user_input)
+
+        self.doctor_pwd_input = QLineEdit()
+        self.doctor_pwd_input.setEchoMode(QLineEdit.EchoMode.Password)
+        self.doctor_pwd_input.setPlaceholderText("Doctor Password")
+        self.form_layout.addRow("Doctor Password:", self.doctor_pwd_input)
+
+        self.doctor_pwd_confirm = QLineEdit()
+        self.doctor_pwd_confirm.setEchoMode(QLineEdit.EchoMode.Password)
+        self.doctor_pwd_confirm.setPlaceholderText("Confirm Doctor Password")
+        self.form_layout.addRow("Confirm Password:", self.doctor_pwd_confirm)
+
+        layout.addLayout(self.form_layout)
+
+        self.error_label = QLabel("")
+        self.error_label.setStyleSheet("color: #EF4444;")
+        self.error_label.setWordWrap(True)
+        layout.addWidget(self.error_label)
+
+        btn_create = QPushButton("Create Clinic and Doctor")
+        btn_create.setObjectName("PrimaryBtn")
+        btn_create.clicked.connect(self.attempt_setup)
+        layout.addWidget(btn_create)
+
+        self.setModal(True)
+
+        self.saved_doctor_username = None
+        self.saved_doctor_password = None
+
+    def attempt_setup(self):
+        clinic_name = self.clinic_name_input.text().strip()
+        clinic_user = self.clinic_user_input.text().strip()
+        clinic_pwd = self.clinic_pwd_input.text()
+        clinic_pwd_confirm = self.clinic_pwd_confirm.text()
+
+        doctor_name = self.doctor_name_input.text().strip()
+        doctor_user = self.doctor_user_input.text().strip()
+        doctor_pwd = self.doctor_pwd_input.text()
+        doctor_pwd_confirm = self.doctor_pwd_confirm.text()
+
+        if not clinic_name or not clinic_user or not clinic_pwd:
+            self.error_label.setText("Clinic name, username, and password are required.")
+            return
+        if clinic_pwd != clinic_pwd_confirm:
+            self.error_label.setText("Clinic passwords do not match.")
+            return
+        if not doctor_name or not doctor_user or not doctor_pwd:
+            self.error_label.setText("Doctor name, username, and password are required.")
+            return
+        if doctor_pwd != doctor_pwd_confirm:
+            self.error_label.setText("Doctor passwords do not match.")
+            return
+
+        if not database.create_clinic(clinic_name, clinic_user, clinic_pwd):
+            self.error_label.setText("Clinic username already exists. Choose a different username.")
+            return
+        if not database.create_doctor(doctor_name, doctor_user, doctor_pwd, 0.0):
+            self.error_label.setText("Doctor username already exists. Choose a different username.")
+            return
+
+        self.saved_doctor_username = doctor_user
+        self.saved_doctor_password = doctor_pwd
+        QMessageBox.information(self, "Setup Complete", "Clinic and first doctor account were created successfully.")
+        self.accept()
+
+
+class LoginWindow(QDialog):
+    def __init__(self, default_username="", default_password=""):
         super().__init__()
         self.setWindowTitle("Doctor Login")
         self.setFixedSize(350, 220)
@@ -3918,11 +4040,11 @@ class LoginWindow(QDialog):
         form_layout = QFormLayout()
         form_layout.setVerticalSpacing(15)
         
-        self.username_input = QLineEdit("dr_admin")
+        self.username_input = QLineEdit(default_username or "dr_admin")
         self.username_input.setPlaceholderText("Doctor Username")
         form_layout.addRow("Username:", self.username_input)
         
-        self.password_input = QLineEdit()
+        self.password_input = QLineEdit(default_password)
         self.password_input.setPlaceholderText("Password")
         self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
         form_layout.addRow("Password:", self.password_input)
@@ -3952,12 +4074,25 @@ class LoginWindow(QDialog):
 
 def main():
     try:
+        if "--initialize-db" in sys.argv:
+            database.initialize_database()
+            return
+
         app = QApplication(sys.argv)
         
-        # Initialize DB first to ensure clinics and doctors exist before login
+        # Initialize DB first to ensure tables exist before login
         database.initialize_database()
-        
-        login = LoginWindow()
+
+        default_login = {}
+        if not database.has_clinics() or not database.has_doctors():
+            setup_dialog = FirstLaunchSetupDialog()
+            if setup_dialog.exec() == QDialog.DialogCode.Accepted:
+                default_login['username'] = setup_dialog.saved_doctor_username
+                default_login['password'] = setup_dialog.saved_doctor_password
+            else:
+                sys.exit(0)
+
+        login = LoginWindow(default_login.get('username', ''), default_login.get('password', ''))
         if login.exec() == QDialog.DialogCode.Accepted:
             window = DentaLinkMainWindow(login.logged_in_session)
             window.show()

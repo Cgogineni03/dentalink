@@ -15,7 +15,6 @@ PrivilegesRequired=lowest
 
 [Files]
 Source: "dist\DentaLink.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "dist\dental_clinic.db"; DestDir: "{app}"; Flags: onlyifdoesntexist uninsneveruninstall
 
 [Icons]
 Name: "{group}\DentaLink"; Filename: "{app}\DentaLink.exe"
@@ -25,4 +24,5 @@ Name: "{userdesktop}\DentaLink"; Filename: "{app}\DentaLink.exe"; Tasks: desktop
 Name: "desktopicon"; Description: "Create a &desktop icon"; GroupDescription: "Additional icons:"
 
 [Run]
+Filename: "{app}\DentaLink.exe"; Parameters: "--initialize-db"; WorkingDir: "{app}"; Flags: waituntilterminated skipifsilent; Check: not FileExists(ExpandConstant('{app}\dental_clinic.db'))
 Filename: "{app}\DentaLink.exe"; Description: "Launch DentaLink"; Flags: nowait postinstall skipifsilent

@@ -553,34 +553,18 @@ def initialize_database():
         );
     """)
 
-    # Seed default doctor if doctors table is empty
     cursor.execute("SELECT COUNT(*) FROM doctors;")
-    if cursor.fetchone()[0] == 0:
-        salt = os.urandom(16).hex()
-        hashed_pw = hashlib.pbkdf2_hmac('sha256', b'admin123', bytes.fromhex(salt), 100000).hex()
-        cursor.execute("""
-            INSERT INTO doctors (name, username, password_hash, salt)
-            VALUES (?, ?, ?, ?);
-        """, ("Dr. Admin", "dr_admin", hashed_pw, salt))
-        conn.commit()
-
-    # Seed default clinic if clinics table is empty
+    has_doctors = cursor.fetchone()[0] > 0
     cursor.execute("SELECT COUNT(*) FROM clinics;")
-    if cursor.fetchone()[0] == 0:
-        salt = os.urandom(16).hex()
-        hashed_pw = hashlib.pbkdf2_hmac('sha256', b'admin123', bytes.fromhex(salt), 100000).hex()
-        cursor.execute("""
-            INSERT INTO clinics (name, username, password_hash, salt)
-            VALUES (?, ?, ?, ?);
-        """, ("Main Dental Clinic", "admin", hashed_pw, salt))
-        conn.commit()
+    has_clinics = cursor.fetchone()[0] > 0
 
     conn.commit()
 
-    # Seed mock data if patients table is empty
-    cursor.execute("SELECT COUNT(*) FROM patients;")
-    if cursor.fetchone()[0] == 0:
-        seed_detailed_mock_data(conn)
+    # Seed mock data only when doctor records already exist
+    if has_doctors:
+        cursor.execute("SELECT COUNT(*) FROM patients;")
+        if cursor.fetchone()[0] == 0:
+            seed_detailed_mock_data(conn)
 
     conn.close()
 
@@ -1774,6 +1758,37 @@ def get_clinic_profile(username):
     row = cursor.fetchone()
     conn.close()
     return dict(row) if row else None
+
+def has_doctors():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM doctors;")
+    result = cursor.fetchone()[0] > 0
+    conn.close()
+    return result
+
+def has_clinics():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM clinics;")
+    result = cursor.fetchone()[0] > 0
+    conn.close()
+    return result
+
+def create_clinic(name, username, password, logo_path=""):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    salt = os.urandom(16).hex()
+    hashed_pw = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), bytes.fromhex(salt), 100000).hex()
+    try:
+        cursor.execute("INSERT INTO clinics (name, username, password_hash, salt, logo_path) VALUES (?, ?, ?, ?, ?);", (name, username, hashed_pw, salt, logo_path))
+        conn.commit()
+        success = True
+    except sqlite3.IntegrityError:
+        success = False
+    conn.close()
+    return success
+
 
 def update_clinic_profile(old_username, new_name, new_username, new_password=None):
     conn = get_db_connection()
