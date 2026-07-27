@@ -1,0 +1,8 @@
+dentalink (0.3.0-1) stable; urgency=medium
+
+  * Native Debian-based Linux distribution release.
+  * Modern GTK4 / Libadwaita dark and light visual themes.
+  * Native freedesktop .desktop launcher integration.
+  * Package build script and APT repository support.
+
+ -- DentaLink Development Team <support@dentalink.org>  Mon, 27 Jul 2026 12:00:00 +0000

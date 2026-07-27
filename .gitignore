@@ -1,0 +1,72 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+bin/
+build/
+build_deb_pkg/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.deb
+debian/dentalink/
+debian/.debhelper/
+debian/files
+debian/*.substvars
+
+# PyInstaller
+*.manifest
+
+# SQLite databases (local clinic data)
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Log files
+*.log
+app.log
+crash.log
+test.log
+trace.log
+verify.log
+
+# Windows Desktop leftover artifacts
+desktop.ini
+*.ico
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE settings
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: DentaLink
+Source: https://github.com/Cgogineni03/dentalink
+
+Files: *
+Copyright: 2026 DentaLink Development Team
+License: BSD-3-Clause

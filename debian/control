@@ -1,0 +1,16 @@
+Source: dentalink
+Section: utils
+Priority: optional
+Maintainer: DentaLink Development Team <support@dentalink.org>
+Build-Depends: debhelper-compat (= 13), python3-all, python3-setuptools
+Standards-Version: 4.6.2
+Homepage: https://github.com/Cgogineni03/dentalink
+
+Package: dentalink
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${python3:Depends}, python3, python3-pyqt6, python3-cryptography, sqlite3
+Description: Native Patient Management Desktop Application for Dental Clinics
+ DentaLink is a native desktop application for dental clinics to manage
+ patient registration, clinical examinations, dental/periodontal charts,
+ diagnostic images, billing, referrals, and appointments. Features encrypted
+ SQLite storage, universal recovery keys, and Git-style history tracking.

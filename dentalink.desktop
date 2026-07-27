@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=DentaLink
+GenericName=Patient Management System
+Comment=Dental Clinic Patient Records & Clinical History Management System
+Exec=dentalink
+Icon=dentalink
+Terminal=false
+Type=Application
+Categories=Medical;Healthcare;GTK;Qt;
+StartupWMClass=DentaLink
+Keywords=dental;clinic;patient;records;xray;health;medical;
