@@ -1,38 +1,48 @@
-# 🦷 DentaLink — Patient Management Desktop Application
+# 🦷 DentaLink — Patient Management Desktop Application (v0.3)
 
-DentaLink is a native desktop application for dental clinics to manage patient registration, clinical examinations, dental/periodontal charts, diagnostic images, billing, and appointments. It is built with **Python 3.12**, **PyQt6**, and a local **SQLite** database, supporting both dark and light themes.
+DentaLink is a native Windows desktop application for dental clinics to manage patient registration, clinical examinations, dental/periodontal charts, diagnostic images, billing, referrals, and appointments. It features modular architecture, encrypted database security, 2-Factor recovery keys, and Git-style immutable patient history tracking.
 
 ---
 
-## 🚀 Core Features
+## 🚀 Core Features (v0.3)
 
-- **Clinic Dashboard**: Overview of pending outpatients, appointments, and clinic status.
-- **Patient Workflow**: Register patients, move them through the new OP queue, and manage active patient records.
-- **Case History**: Maintain chief complaints, HPI, medical/dental history, brushing habits, and personal background.
+### 🏥 Onboarding & Multi-User Management
+- **First-Launch Setup Wizard**: Guided onboarding for clinic profile creation, admin doctor credentials, and security recovery setup.
+- **Doctor & Admin Authentication**: Role-based access control with secure password hashing and recovery options.
+- **Emergency Password Recovery**: 16-character **Universal Recovery Key** generation for emergency doctor password reset without data loss.
+
+### 📋 Patient Workflow & Clinical Records
+- **Queue Management**: Outpatient registration, transition from New OP to Active Patients list.
+- **Comprehensive Case History**: Capture chief complaints, HPI, medical/dental history, deleterious habits (tobacco, alcohol, etc.), and personal background.
 - **Clinical Examination Panels**:
-  - **Extra-Oral Examination**: TMJ assessment, lymph node checks, and general vital sign capture.
-  - **Intra-Oral Examination**: Occlusion, gingival findings, oral mucosal health, and wasting condition logging.
-  - **Local Examinations**: Inspect and record soft/hard tissue findings, palpation, and percussion.
-- **Dental & Periodontal Charting**:
-  - **Dental Chart**: Capture tooth-level condition and surface-specific findings.
-  - **Periodontal Chart**: Track probing depths, mobility, and bleeding on probing (BOP).
-- **Diagnostics & X-ray Viewer**:
-  - Upload and store X-ray images securely within the patient profile.
-  - View diagnostic images with built-in display controls.
-- **Billing & Payments**: Create procedure billing, apply doctor discounts, accept payments, and track dues.
-- **Appointments**: Book appointments and maintain visit schedules.
-- **Clinic Customization**:
-  - Upload a clinic logo for the app header and printed reports.
-  - Switch between dark and light themes.
+  - **Extra-Oral Examination**: TMJ assessment, lymph node checks, and vital signs capture.
+  - **Intra-Oral Examination**: Occlusion, gingival findings, oral mucosal health, and wasting conditions logging.
+  - **Local Examinations**: Detailed soft/hard tissue inspection, palpation, and percussion.
+
+### 🦷 Interactive Charting & Imaging
+- **Interactive Dental Chart**: Tooth-level surface-specific condition charting.
+- **Periodontal Chart**: Probing depths, tooth mobility, and Bleeding on Probing (BOP).
+- **X-Ray & Diagnostic Viewer**: Upload, view, and store X-ray images directly within the SQLite database as secure BLOBs.
+
+### 📜 Git-Style Immutable History Tracking
+- **Version Control for Patient Records**: Snapshot commits for patient record modifications.
+- **Section Hierarchy Deltas**: Categorized visual diffs tracking changes across medical history, clinical findings, and dental charts.
+- **Version History Dialog**: Inspect full commit history and timeline deltas for every patient record.
+
+### 💳 Billing, Appointments & Referrals
+- **Billing & Payments**: Procedure item billing, doctor discount rules, payment acceptance, and dues tracking.
+- **Multi-Referral System**: Track patient referral sources and specialist outgoing referrals.
+- **Appointments**: Schedule and track upcoming patient visits.
 
 ---
 
 ## 🛠️ Technology Stack
 
-- **Python**: 3.12
-- **GUI**: [PyQt6](https://pypi.org/project/PyQt6/)
-- **Database**: [SQLite](https://sqlite.org/)
-- **Packaging**: [PyInstaller](https://pyinstaller.org/) and [Inno Setup](https://jrsoftware.org/isinfo.php)
+- **Python**: 3.14 / 3.12
+- **GUI Framework**: [PyQt6](https://pypi.org/project/PyQt6/)
+- **Database**: [SQLite](https://sqlite.org/) with cryptography extensions
+- **Security**: `cryptography` (PBKDF2, AES, HMAC)
+- **Packaging & Installer**: [PyInstaller 6.x](https://pyinstaller.org/) & [Inno Setup 6](https://jrsoftware.org/isinfo.php)
 
 ---
 
@@ -40,110 +50,65 @@ DentaLink is a native desktop application for dental clinics to manage patient r
 
 ```
 dental-patient-management/
-├── main.py                     # Main application entry point and UI logic
-├── database.py                 # SQLite schema, connection helpers, and operations
-├── DentaLink.spec              # PyInstaller build specification
+├── main.py                     # Entry point & component facade
+├── database.py                 # Root facade for database operations
+├── DentaLink.spec              # PyInstaller build configuration
 ├── setup.iss                   # Inno Setup installer script
-├── verify_app.py               # Verification and sanity-check script
-├── widgets/                    # Custom Qt widgets
-│   ├── __init__.py
-│   ├── dental_chart.py         # Dental chart widget
-│   └── xray_viewer.py          # X-ray viewer widget
-└── dental_clinic.db            # Generated SQLite database file at runtime
-```
-
----
-
-## 📦 Database Schema Overview
-
-DentaLink stores application data in a normalized SQLite database with the following tables:
-
-| Table | Description |
-| :--- | :--- |
-| `clinics` | Clinic settings, admin credentials, and logo path. |
-| `doctors` | Doctor profiles, login credentials, and discount percentages. |
-| `patients` | Patient demographics, status, assigned doctor, and balances. |
-| `case_history` | Medical/dental history, brushing habits, and narrative records. |
-| `deleterious_habits` | Patient habit logs such as tobacco, alcohol, quid, and others. |
-| `extra_oral_exam` | Vital signs and extra-oral exam findings. |
-| `intra_oral_exam` | Intra-oral exam details and occlusion data. |
-| `local_examinations` | Local examination records for soft/hard tissue findings. |
-| `diagnoses` | Provisional, differential, and final diagnosis entries. |
-| `dental_chart` | Tooth-level charting for each surface and condition. |
-| `perio_chart` | Periodontal probing depths, mobility, and bleeding data. |
-| `xrays` | Diagnostic X-ray images stored as BLOBs. |
-| `investigations` | Investigation orders and billing totals. |
-| `appointments` | Appointment dates, times, and visit tracking. |
-| `prescriptions` | Medication prescriptions and dosage instructions. |
-| `treatments_needed` | Planned treatment items and billing details. |
-| `treatments_done` | Completed procedures and clinical notes. |
-| `patient_files` | External attachments such as PDFs or images. |
-
----
-
-## ⚙️ Getting Started
-
-### 1. Prerequisites
-
-Install **Python 3.12**.
-
-### 2. Create a virtual environment
-
-```powershell
-python -m venv venv
-.\venv\Scripts\Activate.ps1
-```
-
-### 3. Install dependencies
-
-```bash
-pip install PyQt6
-```
-
-### 4. Run the application
-
-```bash
-python main.py
+├── verify_app.py               # 7-step test verification script
+├── db/                         # Modular database domain layer
+│   ├── appointments.py         # Appointment scheduling
+│   ├── clinical.py             # Clinical exams, prescriptions, X-rays
+│   ├── clinics.py              # Clinic setup, doctor auth & recovery
+│   ├── connection.py           # SQLite connection & schema initialization
+│   ├── crypto.py               # Encryption, hashing & universal key generator
+│   ├── history.py              # Git-style immutable history commit engine
+│   ├── patients.py             # Patient demographic & workflow state
+│   ├── procedural_graphics.py  # Procedural image rendering
+│   ├── referrals.py            # Patient referral management
+│   └── seeding.py              # Mock data seeding
+├── gui/                        # Modular Qt UI components & dialogs
+│   ├── components/             # Custom UI widgets (clickable labels, file uploader)
+│   ├── dialogs/                # Dialog windows (first launch, auth, recovery key)
+│   ├── login_window.py         # Clinic login window
+│   ├── main_window.py          # Primary application workbench window
+│   └── styles.py               # Dark & Light stylesheet tokens
+├── widgets/                    # Custom interactive graphics widgets
+│   ├── dental_chart.py         # Interactive dental charting widget
+│   └── xray_viewer.py          # Diagnostic X-ray viewer widget
+└── installer_dist/             # Distribution output directory
+    └── DentaLinkSetup.exe      # Compiled Windows installer v0.3
 ```
 
 ---
 
 ## 🧪 Verification & Testing
 
-Run the verification script to confirm the application environment and database setup:
+Run the automated test suite to verify database schemas, security recovery keys, and history commit tracking:
 
-```bash
+```powershell
 python verify_app.py
 ```
 
-A successful verification run should complete without errors.
-
 ---
 
-## 📦 Packaging for Windows
+## 📦 Windows Installer & Release v0.3
 
-### Build standalone executable
-
-```bash
-pyinstaller DentaLink.spec
+### Build Standalone Executable
+```powershell
+py -m PyInstaller DentaLink.spec --noconfirm
 ```
 
-### Build installer with Inno Setup
-
-1. Install [Inno Setup](https://jrsoftware.org/isinfo.php).
-2. Open `setup.iss` in the Inno Setup compiler and compile.
-
-Or compile from the command line:
-
+### Build Inno Setup Installer
 ```cmd
-"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" setup.iss
+"C:\Users\%USERNAME%\AppData\Local\Programs\Inno Setup 6\ISCC.exe" setup.iss
 ```
+The output installer is generated at `installer_dist/DentaLinkSetup.exe`.
 
-The generated installer will be placed in `installer_dist/`.
+### 📥 Download Release
+Download the latest Windows Installer from [GitHub Releases v0.3](https://github.com/Cgogineni03/dentalink/releases/tag/v0.3.0).
 
 ---
 
-## Notes
+## 📄 License
 
-- `dental_clinic.db` is generated at runtime and should not be committed to source control.
-- The installer initializes the database only when the file does not already exist.
+This project is licensed under the terms included in the [LICENSE](LICENSE) file.
