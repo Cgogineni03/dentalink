@@ -1,101 +1,79 @@
-# 🦷 DentaLink — Patient Management Desktop Application (v0.3)
+# 🐧 DentaLink — Linux Patient Management Desktop Application (v0.3)
 
-DentaLink is a native Linux desktop application targeting Debian-based Linux distributions (Debian, Ubuntu, Linux Mint, Pop!_OS, Elementary OS, Zorin OS) for dental clinics to manage patient registration, clinical examinations, dental/periodontal charts, diagnostic images, billing, referrals, and appointments. It features modern GTK4 / Libadwaita dark and light visual themes, system GTK theme auto-detection, encrypted database security, 2-Factor recovery keys, and Git-style immutable patient history tracking.
+[![Linux](https://img.shields.io/badge/Platform-Linux%20%2F%20Debian%20%2F%20Ubuntu-orange?logo=linux)](https://debian.org)
+[![Python](https://img.shields.io/badge/Python-3.10%2B%20%7C%203.12-blue?logo=python)](https://python.org)
+[![PyQt6](https://img.shields.io/badge/GUI-PyQt6%20%2F%20GTK4-green)](https://pypi.org/project/PyQt6/)
+[![Debian Package](https://img.shields.io/badge/Package-.deb%20Installer-blueviolet)](https://debian.org)
+[![Branch](https://img.shields.io/badge/Git%20Branch-linux-brightgreen)](https://github.com/Cgogineni03/dentalink/tree/linux)
+
+**DentaLink (Linux Edition)** is a desktop patient management system specifically tailored for Debian-based Linux distributions (*Debian, Ubuntu, Linux Mint, Pop!_OS, Elementary OS, Zorin OS*). Designed for dental clinics, it manages patient registration, clinical examinations, surface-level dental charting, diagnostic X-ray imaging, billing, referrals, and appointments.
+
+It features a modern **GTK4 / Libadwaita dark & light visual design system**, dynamic GTK theme auto-detection via `gsettings`, encrypted database security, 2-Factor emergency recovery keys, and Git-style immutable history tracking.
 
 ---
 
-## 🚀 Core Features (v0.3)
+## 🚀 Key Linux Features
 
-### 🐧 Debian-Based Linux Distribution Target
-- **Native Freedesktop Integration**: `.desktop` application launcher for GNOME, XFCE, KDE, and MATE desktop docks and menus.
-- **GNOME Libadwaita / GTK4 Visual Design**: Sleek dark and light GTK themes with rounded card containers, accent blue highlights (`#3584e4`), pill action buttons, and GTK typography.
-- **System GTK Theme Auto-Detection**: Dynamically queries Linux desktop `gsettings color-scheme` to align app aesthetics with system preferences.
-- **Debian Package Build (`.deb`)**: Automated `dpkg-deb` packaging script (`build_deb.sh`) for APT deployment.
-
-### 🏥 Onboarding & Multi-User Management
-- **First-Launch Setup Wizard**: Guided onboarding for clinic profile creation, admin doctor credentials, and security recovery setup.
-- **Doctor & Admin Authentication**: Role-based access control with secure password hashing and recovery options.
-- **Emergency Password Recovery**: 16-character **Universal Recovery Key** generation for emergency doctor password reset without data loss.
-
-### 📋 Patient Workflow & Clinical Records
-- **Queue Management**: Outpatient registration, transition from New OP to Active Patients list.
-- **Comprehensive Case History**: Capture chief complaints, HPI, medical/dental history, deleterious habits (tobacco, alcohol, etc.), and personal background.
-- **Clinical Examination Panels**:
-  - **Extra-Oral Examination**: TMJ assessment, lymph node checks, and vital signs capture.
-  - **Intra-Oral Examination**: Occlusion, gingival findings, oral mucosal health, and wasting conditions logging.
-  - **Local Examinations**: Detailed soft/hard tissue inspection, palpation, and percussion.
-
-### 🦷 Interactive Charting & Imaging
-- **Interactive Dental Chart**: Tooth-level surface-specific condition charting.
-- **Periodontal Chart**: Probing depths, tooth mobility, and Bleeding on Probing (BOP).
-- **X-Ray & Diagnostic Viewer**: Upload, view, and store X-ray images directly within the SQLite database as secure BLOBs.
-
-### 📜 Git-Style Immutable History Tracking
-- **Version Control for Patient Records**: Snapshot commits for patient record modifications.
-- **Section Hierarchy Deltas**: Categorized visual diffs tracking changes across medical history, clinical findings, and dental charts.
-- **Version History Dialog**: Inspect full commit history and timeline deltas for every patient record.
-
-### 💳 Billing, Appointments & Referrals
-- **Billing & Payments**: Procedure item billing, doctor discount rules, payment acceptance, and dues tracking.
-- **Multi-Referral System**: Track patient referral sources and specialist outgoing referrals.
-- **Appointments**: Schedule and track upcoming patient visits.
+- 🐧 **Native Linux Desktop Integration**: Includes a `.desktop` Freedesktop launcher for GNOME, XFCE, KDE, and MATE application menus and docks.
+- 🎨 **GTK4 / Libadwaita Visual Aesthetics**: Clean dark and light GTK theme support with rounded card surfaces, `#3584e4` blue accent highlights, pill action buttons, and GTK typography.
+- 🌗 **System GTK Theme Auto-Detection**: Dynamically queries Linux desktop `gsettings color-scheme` to automatically align app appearance with the host environment.
+- 📦 **Automated Debian Package (`.deb`) Builder**: Built-in `build_deb.sh` script to package DentaLink into a standalone `.deb` installer with desktop entry and menu icons.
+- 🏥 **Onboarding & Doctor Auth**: Guided setup wizard, role-based clinic authentication, and a 16-character **Universal Recovery Key** for emergency password resets.
+- 🦷 **Interactive Charting & X-Ray Viewer**: Surface-specific adult/pediatric dental charting, periodontal probing logs, and BLOB-stored diagnostic X-ray management.
+- 📜 **Git-Style Immutable History Tracking**: Record snapshot commit logs and visual section deltas tracking all patient record changes.
 
 ---
 
 ## 🛠️ Technology Stack
 
-- **Target Distros**: Debian, Ubuntu, Linux Mint, Pop!_OS, Zorin OS
-- **Python**: 3.10+ / 3.12 / 3.14
-- **GUI Framework**: [PyQt6](https://pypi.org/project/PyQt6/) with GTK platform integration
-- **Styling**: Modern GTK4 / Libadwaita QSS design system
-- **Database**: [SQLite](https://sqlite.org/) with cryptography extensions
-- **Security**: `cryptography` (PBKDF2, AES, HMAC)
-- **Linux Packaging**: Debian Package (`.deb`), `dpkg-deb`, [PyInstaller 6.x](https://pyinstaller.org/)
+| Component | Technology / Library |
+| :--- | :--- |
+| **Target Operating System** | Linux (Debian 11+, Ubuntu 22.04+, Linux Mint, Pop!_OS, Zorin OS) |
+| **Language** | Python 3.10+ / 3.12 |
+| **GUI Framework** | PyQt6 with GTK4 / Libadwaita QSS styling |
+| **Database** | SQLite3 with AES-256 / PBKDF2 encryption |
+| **Packaging** | `dpkg-deb`, PyInstaller 6.x, `.desktop` Freedesktop launcher |
 
 ---
 
-## 📂 Project Structure
+## 📦 Prerequisites & System Dependencies
 
-```
-dental-patient-management/
-├── main.py                     # Entry point & component facade
-├── database.py                 # Root facade for database operations
-├── DentaLink.spec              # PyInstaller build configuration for Linux
-├── dentalink.desktop           # Freedesktop application launcher file
-├── build_deb.sh                # Debian (.deb) package compiler script
-├── verify_app.py               # 7-step test verification script
-├── debian/                     # Debian packaging metadata
-│   ├── control                 # APT package dependencies & metadata
-│   ├── changelog               # Package version release notes
-│   ├── rules                   # debhelper build rules
-│   └── copyright               # Debian copyright manifest
-├── db/                         # Modular database domain layer
-│   ├── appointments.py         # Appointment scheduling
-│   ├── clinical.py             # Clinical exams, prescriptions, X-rays
-│   ├── clinics.py              # Clinic setup, doctor auth & recovery
-│   ├── connection.py           # SQLite connection & schema initialization
-│   ├── crypto.py               # Encryption, hashing & universal key generator
-│   ├── history.py              # Git-style immutable history commit engine
-│   ├── patients.py             # Patient demographic & workflow state
-│   ├── procedural_graphics.py  # Procedural image rendering
-│   ├── referrals.py            # Patient referral management
-│   └── seeding.py              # Mock data seeding
-├── gui/                        # Modular Qt UI components & dialogs
-│   ├── components/             # Custom UI widgets (clickable labels, file uploader)
-│   ├── dialogs/                # Dialog windows (first launch, auth, recovery key)
-│   ├── login_window.py         # Clinic login window
-│   ├── main_window.py          # Primary application workbench window
-│   └── styles.py               # Modern GTK4 / Libadwaita stylesheets & system theme detector
-└── widgets/                    # Custom interactive graphics widgets
-    ├── dental_chart.py         # Interactive dental charting widget
-    └── xray_viewer.py          # Diagnostic X-ray viewer widget
+On Debian-based distributions (Debian, Ubuntu, Linux Mint, Pop!_OS):
+
+```bash
+sudo apt update
+sudo apt install -f python3 python3-pip python3-pyqt6 python3-cryptography sqlite3
 ```
 
 ---
 
-## 🧪 Verification & Testing
+## 🚀 Quick Start (Running from Source)
 
-Run the automated test suite to verify database schemas, security recovery keys, and history commit tracking:
+Clone the repository and switch to the `linux` branch:
+
+```bash
+git clone https://github.com/Cgogineni03/dentalink.git
+cd dentalink
+git checkout linux
+```
+
+Install Python dependencies (if not using distribution packages):
+
+```bash
+pip install PyQt6 cryptography
+```
+
+Run the application:
+
+```bash
+python3 main.py
+```
+
+---
+
+## 🧪 Automated Testing & Verification
+
+Run the verification test suite to validate database schemas, encryption, recovery keys, and history snapshot commits:
 
 ```bash
 python3 verify_app.py
@@ -103,28 +81,67 @@ python3 verify_app.py
 
 ---
 
-## 📦 Debian Package (.deb) & Linux Build
+## 🛠️ Building & Installing the Debian Package (`.deb`)
 
-### System Dependencies (Debian / Ubuntu)
-```bash
-sudo apt update
-sudo apt install python3 python3-pyqt6 python3-cryptography sqlite3
-```
+DentaLink includes an automated packaging script (`build_deb.sh`) that compiles PyInstaller binaries and structures a Debian `.deb` package.
 
-### Build Debian (.deb) Package
-To compile a standalone `.deb` package targeting Debian-based Linux distros:
+### 1. Build the `.deb` Package
 
 ```bash
 chmod +x build_deb.sh
 ./build_deb.sh
 ```
-Output package: `dentalink_0.3.0_amd64.deb`.
 
-### Install Package on Debian / Ubuntu / Mint / Pop!_OS
+The compiled package will be generated at:
+`dentalink_0.3.0_amd64.deb`
+
+### 2. Install the Package
+
 ```bash
 sudo dpkg -i dentalink_0.3.0_amd64.deb
-# Fix any missing dependencies if needed:
-sudo apt install -f
+sudo apt install -f  # Fix any missing system dependencies if prompted
+```
+
+Once installed, DentaLink will appear in your application launcher menu under **Office** / **Medical** as **DentaLink Clinic Management**.
+
+---
+
+## 📂 Project Structure
+
+```
+Dentalink_linux/
+├── main.py                     # Primary entry point & window controller
+├── database.py                 # Core database access layer & facade
+├── DentaLink.spec              # PyInstaller build specification for Linux
+├── dentalink.desktop           # Freedesktop application entry file
+├── app_icon.png                # Desktop launcher PNG icon
+├── build_deb.sh                # Debian (.deb) package compilation script
+├── verify_app.py               # Automated verification test suite
+├── debian/                     # Debian package metadata
+│   ├── control                 # APT package dependencies & metadata
+│   ├── changelog               # Package version release notes
+│   ├── rules                   # debhelper build instructions
+│   └── copyright               # Package copyright manifest
+├── db/                         # Modular SQLite database domain models
+│   ├── appointments.py         # Appointment scheduling
+│   ├── clinical.py             # Exams, prescriptions, X-rays
+│   ├── clinics.py              # Clinic profile, auth & recovery keys
+│   ├── connection.py           # SQLite connection pool & migration
+│   ├── crypto.py               # PBKDF2 hashing, AES-256 encryption
+│   ├── history.py              # Immutable record commit history engine
+│   ├── patients.py             # Patient records & registration workflow
+│   ├── procedural_graphics.py  # SVG/PNG procedural rendering
+│   ├── referrals.py            # Referral tracking
+│   └── seeding.py              # Sample clinic database seeding
+├── gui/                        # Modular Qt user interface components
+│   ├── components/             # Custom widgets (file uploader, clickable labels)
+│   ├── dialogs/                # Dialog windows (onboarding, auth, history viewer)
+│   ├── login_window.py         # Login screen
+│   ├── main_window.py          # Main workbench interface
+│   └── styles.py               # GTK4 / Libadwaita QSS theme manager & auto-detector
+└── widgets/                    # Custom graphics widgets
+    ├── dental_chart.py         # Interactive dental charting widget
+    └── xray_viewer.py          # Diagnostic X-ray viewer widget
 ```
 
 ---
@@ -132,3 +149,4 @@ sudo apt install -f
 ## 📄 License
 
 This project is licensed under the terms included in the [LICENSE](LICENSE) file.
+
