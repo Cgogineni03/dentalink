@@ -16,7 +16,13 @@ from PyQt6.QtGui import QFont, QIcon, QPainter, QPixmap, QColor, QPen
 from PyQt6.QtPrintSupport import QPrinter, QPrintPreviewDialog
 
 import database
-from gui.styles import load_theme_setting, get_theme_stylesheet, save_theme_setting
+from gui.styles import (
+    load_theme_setting,
+    get_theme_stylesheet,
+    save_theme_setting,
+    resolve_theme_name,
+    get_system_color_scheme,
+)
 from gui.components.clickable_label import ClickableLabel
 from gui.components.file_uploader import FileUploaderWidget
 from gui.components.icon_helpers import create_sidebar_toggle_icon
@@ -3733,10 +3739,12 @@ class DentaLinkMainWindow(QMainWindow):
         theme_layout.setVerticalSpacing(12)
 
         self.theme_combo = QComboBox()
-        self.theme_combo.addItems(["Custom Dark", "Custom Light"])
+        self.theme_combo.addItems(["System Theme (Auto)", "Custom Dark", "Custom Light"])
         
         current_theme = load_theme_setting()
-        if current_theme == "light":
+        if current_theme == "system":
+            self.theme_combo.setCurrentText("System Theme (Auto)")
+        elif current_theme == "light":
             self.theme_combo.setCurrentText("Custom Light")
         else:
             self.theme_combo.setCurrentText("Custom Dark")
@@ -3744,7 +3752,17 @@ class DentaLinkMainWindow(QMainWindow):
         self.theme_combo.currentTextChanged.connect(self.on_theme_changed)
         theme_layout.addRow("Active Theme:", self.theme_combo)
 
+        sys_info = get_system_color_scheme()
+        sys_status_str = f"Detected System Mode: {sys_info['theme'].capitalize()} | Accent Color: {sys_info['accent_color']}"
+        if sys_info['supported_system']:
+            sys_status_str += f" ({sys_info['os_version']})"
+        self.lbl_system_theme_status = QLabel(sys_status_str)
+        self.lbl_system_theme_status.setStyleSheet("color: #94A3B8; font-style: italic; font-size: 12px;")
+        theme_layout.addRow("OS Color Scheme:", self.lbl_system_theme_status)
+
+
         scroll_layout.addWidget(theme_group)
+
 
         # 2. Manage Doctors Group
         doc_group = QGroupBox("Manage Doctor Profiles")
@@ -3907,28 +3925,31 @@ class DentaLinkMainWindow(QMainWindow):
         from widgets.dental_chart import DentalChartWidget
         from widgets.xray_viewer import XrayViewerWidget
         
+        resolved = resolve_theme_name(self.current_theme)
         charts = self.findChildren(DentalChartWidget)
         for chart in charts:
-            chart.update_theme(self.current_theme)
+            chart.update_theme(resolved)
             
         xrays = self.findChildren(XrayViewerWidget)
         for xray in xrays:
             xray.refresh_list()
 
-    def save_theme_setting(self, theme_name):
-        import json
-        config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "settings_config.json")
-        try:
-            with open(config_path, "w") as f:
-                json.dump({"theme": theme_name}, f)
-        except Exception:
-            pass
-
     def on_theme_changed(self, text):
-        theme_name = "classic"
-        if "Light" in text:
+        if "System" in text:
+            theme_name = "system"
+        elif "Light" in text:
             theme_name = "light"
+        else:
+            theme_name = "dark"
         
-        self.save_theme_setting(theme_name)
+        save_theme_setting(theme_name)
         self.apply_theme(theme_name)
+        if hasattr(self, 'lbl_system_theme_status'):
+            sys_info = get_system_color_scheme()
+            sys_status_str = f"Detected System Mode: {sys_info['theme'].capitalize()} | Accent Color: {sys_info['accent_color']}"
+            if sys_info['supported_system']:
+                sys_status_str += f" ({sys_info['os_version']})"
+            self.lbl_system_theme_status.setText(sys_status_str)
+
+
 

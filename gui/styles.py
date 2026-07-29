@@ -1,6 +1,7 @@
 # DentaLink QSS Theme Stylesheets & Configuration Manager
 import json
 import os
+import sys
 
 DARK_STYLESHEET = """
 QMainWindow {
@@ -425,17 +426,138 @@ QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
 """
 
 
+def detect_system_theme():
+    """Detects whether the host Windows system theme is Dark or Light.
+    
+    On Windows 10/11, queries the Personalization Registry (AppsUseLightTheme / SystemUsesLightTheme).
+    On Windows 7 and 8/8.1 (which lack a native Dark/Light toggle), gracefully falls back to 'dark'.
+    
+    Returns 'dark' or 'light'.
+    """
+    if sys.platform == "win32":
+        try:
+            import winreg
+            key_path = r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path) as key:
+                val, _ = winreg.QueryValueEx(key, "AppsUseLightTheme")
+                return "light" if val == 1 else "dark"
+        except Exception:
+            try:
+                import winreg
+                key_path = r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"
+                with winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path) as key:
+                    val, _ = winreg.QueryValueEx(key, "SystemUsesLightTheme")
+                    return "light" if val == 1 else "dark"
+            except Exception:
+                pass
+
+    return "dark"
+
+
+def get_system_color_scheme():
+    """Retrieves system theme mode and accent color scheme for Windows systems (7, 8, 8.1, 10, 11).
+    
+    - Windows 10/11: Retrieves Light/Dark theme mode, Explorer Accent Color, DWM Colorization, and High Contrast.
+    - Windows 7/8/8.1: Retrieves DWM Aero Colorization accent color and High Contrast mode.
+    
+    Returns a dictionary:
+    {
+        'theme': 'dark' | 'light',
+        'accent_color': '#RRGGBB',
+        'is_high_contrast': bool,
+        'supported_system': bool,
+        'os_version': str
+    }
+    """
+    theme = detect_system_theme()
+    accent_color = "#0371bb"  # Default DentaLink primary accent color
+    is_high_contrast = False
+    supported_system = (sys.platform == "win32")
+    os_version = "Non-Windows"
+
+    if sys.platform == "win32":
+        try:
+            win_ver = sys.getwindowsversion()
+            if win_ver.major >= 10:
+                os_version = f"Windows {win_ver.major}+ (Build {win_ver.build})"
+            elif win_ver.major == 6 and win_ver.minor == 1:
+                os_version = "Windows 7"
+            elif win_ver.major == 6 and win_ver.minor == 2:
+                os_version = "Windows 8"
+            elif win_ver.major == 6 and win_ver.minor == 3:
+                os_version = "Windows 8.1"
+            else:
+                os_version = f"Windows {win_ver.major}.{win_ver.minor}"
+        except Exception:
+            os_version = "Windows"
+
+        try:
+            import winreg
+            # 1. High contrast status (supported on Windows 7, 8, 8.1, 10, 11)
+            try:
+                hkcu_hc = r"Control Panel\Accessibility\HighContrast"
+                with winreg.OpenKey(winreg.HKEY_CURRENT_USER, hkcu_hc) as key:
+                    flags, _ = winreg.QueryValueEx(key, "Flags")
+                    if str(flags) == "1":
+                        is_high_contrast = True
+            except Exception:
+                pass
+
+            # 2. Explorer Accent color (Windows 10/11 AccentColorMenu - ABGR format)
+            try:
+                acc_key = r"Software\Microsoft\Windows\CurrentVersion\Explorer\Accent"
+                with winreg.OpenKey(winreg.HKEY_CURRENT_USER, acc_key) as key:
+                    val, _ = winreg.QueryValueEx(key, "AccentColorMenu")
+                    r = val & 0xFF
+                    g = (val >> 8) & 0xFF
+                    b = (val >> 16) & 0xFF
+                    accent_color = f"#{r:02x}{g:02x}{b:02x}"
+            except Exception:
+                # 3. DWM ColorizationColor (Supported on Windows 7 Aero, Windows 8, and Windows 10/11 - ARGB format)
+                try:
+                    dwm_key = r"Software\Microsoft\Windows\DWM"
+                    with winreg.OpenKey(winreg.HKEY_CURRENT_USER, dwm_key) as key:
+                        val, _ = winreg.QueryValueEx(key, "ColorizationColor")
+                        r = (val >> 16) & 0xFF
+                        g = (val >> 8) & 0xFF
+                        b = val & 0xFF
+                        accent_color = f"#{r:02x}{g:02x}{b:02x}"
+                except Exception:
+                    pass
+        except Exception:
+            pass
+
+    return {
+        "theme": theme,
+        "accent_color": accent_color,
+        "is_high_contrast": is_high_contrast,
+        "supported_system": supported_system,
+        "os_version": os_version
+    }
+
+
+
+
+def resolve_theme_name(theme_name=None):
+    """Resolves setting theme_name ('system', 'light', 'dark', 'classic') to actual theme 'dark' or 'light'."""
+    if not theme_name or theme_name == "system":
+        return detect_system_theme()
+    if theme_name == "light":
+        return "light"
+    return "dark"
+
+
 def load_theme_setting():
-    """Loads active theme from configuration file."""
+    """Loads active theme from configuration file. Defaults to 'system'."""
     config_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "settings_config.json")
     if os.path.exists(config_path):
         try:
             with open(config_path, "r") as f:
                 data = json.load(f)
-                return data.get("theme", "classic")
+                return data.get("theme", "system")
         except Exception:
             pass
-    return "classic"
+    return "system"
 
 
 def save_theme_setting(theme_name):
@@ -448,9 +570,14 @@ def save_theme_setting(theme_name):
         pass
 
 
-def get_theme_stylesheet(theme_name):
-    """Returns corresponding QSS stylesheet for given theme name."""
-    if theme_name == "light":
-        return LIGHT_STYLESHEET
-    else:
-        return DARK_STYLESHEET
+def get_theme_stylesheet(theme_name="system"):
+    """Returns corresponding QSS stylesheet for given theme name setting ('system', 'light', or 'dark')."""
+    resolved = resolve_theme_name(theme_name)
+    stylesheet = LIGHT_STYLESHEET if resolved == "light" else DARK_STYLESHEET
+    if theme_name == "system":
+        sys_scheme = get_system_color_scheme()
+        acc = sys_scheme.get("accent_color")
+        if acc and acc.startswith("#") and len(acc) == 7 and acc.lower() != "#0371bb":
+            stylesheet = stylesheet.replace("#0371bb", acc)
+    return stylesheet
+

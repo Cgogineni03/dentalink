@@ -9,6 +9,8 @@ from PyQt6.QtGui import QPainter, QColor, QPen, QBrush, QPolygonF, QFont, QPaint
 from PyQt6.QtCore import Qt, QPointF, QRectF, pyqtSignal
 
 import database
+from gui.styles import resolve_theme_name
+
 
 class ToothEditDialog(QDialog):
     def __init__(self, tooth_num, existing_conditions, existing_notes, existing_perio, parent=None):
@@ -306,15 +308,17 @@ class DentalChartWidget(QWidget):
         self.init_dimensions()
 
     def update_theme(self, theme_name):
-        self.theme_name = theme_name
+        resolved = resolve_theme_name(theme_name)
+        self.theme_name = resolved
         
         # Also update DMFT score styling color based on theme
-        if theme_name == "light":
+        if resolved == "light":
             self.lbl_dmft.setStyleSheet("color: #0371bb;")
         else:
             self.lbl_dmft.setStyleSheet("color: #38BDF8;")
             
         self.chart_view.update()
+
 
     def update_canvas_size(self):
         if self.supernumerary_teeth:
