@@ -10,6 +10,10 @@ __pycache__/
 bin/
 build/
 build_deb_pkg/
+AppDir/
+rpmbuild/
+pkg/
+src/
 develop-eggs/
 dist/
 downloads/
@@ -27,10 +31,16 @@ share/python-wheels/
 *.egg
 MANIFEST
 *.deb
+*.rpm
+*.AppImage
+*.pkg.tar.zst
+*.tar.gz
+*.tar.xz
 debian/dentalink/
 debian/.debhelper/
 debian/files
 debian/*.substvars
+
 
 # PyInstaller
 *.manifest

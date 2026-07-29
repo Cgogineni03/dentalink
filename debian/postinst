@@ -1,0 +1,14 @@
+#!/bin/sh
+set -e
+
+if [ "$1" = "configure" ] || [ "$1" = "triggered" ]; then
+    if [ -x /usr/bin/update-desktop-database ]; then
+        /usr/bin/update-desktop-database -q || true
+    fi
+    if [ -x /usr/bin/gtk-update-icon-cache ]; then
+        /usr/bin/gtk-update-icon-cache -q -t -f /usr/share/icons/hicolor || true
+    fi
+    chmod +x /usr/bin/dentalink || true
+fi
+
+exit 0

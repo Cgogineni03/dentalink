@@ -12,6 +12,7 @@ a = Analysis(
         ('db', 'db'),
         ('app_icon.png', '.'),
         ('dentalink.desktop', '.'),
+        ('settings_config.json', '.'),
     ],
     hiddenimports=[
         'PyQt6',

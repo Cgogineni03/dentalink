@@ -81,28 +81,80 @@ python3 verify_app.py
 
 ---
 
-## 🛠️ Building & Installing the Debian Package (`.deb`)
+## 🛠️ Building & Installing Packages (.deb, .rpm, Arch & AppImage)
 
-DentaLink includes an automated packaging script (`build_deb.sh`) that compiles PyInstaller binaries and structures a Debian `.deb` package.
+DentaLink includes automated packaging scripts to build native packages for Debian/Ubuntu (`.deb`), RedHat/Fedora/CentOS/openSUSE (`.rpm`), Arch Linux/Manjaro (`PKGBUILD`), and distribution-agnostic standalone AppImages (`.AppImage`).
 
-### 1. Build the `.deb` Package
+### 🚀 Build All Installers (Single Command)
+
+To build all distribution installers at once:
+
+```bash
+chmod +x build_all.sh
+./build_all.sh
+```
+
+---
+
+### 1. Debian / Ubuntu (`.deb`)
 
 ```bash
 chmod +x build_deb.sh
 ./build_deb.sh
 ```
 
-The compiled package will be generated at:
-`dentalink_0.3.0_amd64.deb`
-
-### 2. Install the Package
-
+Install:
 ```bash
 sudo dpkg -i dentalink_0.3.0_amd64.deb
-sudo apt install -f  # Fix any missing system dependencies if prompted
+sudo apt install -f  # Resolve missing dependencies if needed
 ```
 
-Once installed, DentaLink will appear in your application launcher menu under **Office** / **Medical** as **DentaLink Clinic Management**.
+### 2. Fedora / RHEL / CentOS / openSUSE (`.rpm`)
+
+```bash
+chmod +x build_rpm.sh
+./build_rpm.sh
+```
+
+Install:
+```bash
+# Fedora / RHEL / CentOS / Rocky Linux
+sudo dnf install ./dentalink-0.3.0-1.x86_64.rpm
+
+# openSUSE
+sudo zypper install ./dentalink-0.3.0-1.x86_64.rpm
+```
+
+### 3. Arch Linux / Manjaro / EndeavourOS (`PKGBUILD`)
+
+```bash
+chmod +x build_arch.sh
+./build_arch.sh
+```
+
+Install:
+```bash
+sudo pacman -U dentalink-0.3.0-1-x86_64.pkg.tar.zst
+# Or build directly via makepkg:
+makepkg -si
+```
+
+### 4. Universal Linux AppImage (`.AppImage`)
+
+Build standalone AppImage executable (runs on any Linux distro without root/installation):
+
+```bash
+chmod +x build_appimage.sh
+./build_appimage.sh
+```
+
+Run:
+```bash
+chmod +x DentaLink-0.3.0-x86_64.AppImage
+./DentaLink-0.3.0-x86_64.AppImage
+```
+
+Once installed via package manager, DentaLink will appear in your application launcher menu under **Office** / **Medical** as **DentaLink Clinic Management**.
 
 ---
 

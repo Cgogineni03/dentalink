@@ -95,6 +95,12 @@ QPushButton#SidebarBtn:hover {{
 QPushButton#SidebarBtn:checked {{
     background-color: {ACCENT_PRIMARY};
     color: #FFFFFF;
+    font-weight: bold;
+}}
+QPushButton#SidebarBtn:checked:hover {{
+    background-color: {ACCENT_HOVER};
+    color: #FFFFFF;
+    font-weight: bold;
 }}
 QStackedWidget {{
     background-color: #202020;
@@ -274,30 +280,30 @@ QWidget {{
     font-size: 13px;
 }}
 QFrame#Sidebar {{
-    background-color: #FFFFFF;
-    border-right: 1px solid #E0E0E0;
+    background-color: #F8F9FA;
+    border-right: 1px solid #E2E8F0;
 }}
 QFrame#Sidebar QWidget {{
-    color: #5E5C64;
+    color: #475569;
 }}
 QFrame#Sidebar QLabel#SidebarTitle {{
     color: {ACCENT_PRIMARY};
     font-size: 18px;
     font-weight: bold;
     padding: 10px 14px;
-    border: 1px solid #E0E0E0;
+    border: 1px solid #E2E8F0;
     border-radius: 8px;
-    background-color: #F0F0F0;
+    background-color: #FFFFFF;
     margin-bottom: 12px;
 }}
 QFrame#Sidebar QLabel#SidebarTitle:hover {{
     color: {ACCENT_HOVER};
-    background-color: #E6E6E6;
+    background-color: #F1F5F9;
     border: 1px solid {ACCENT_PRIMARY};
 }}
 QFrame#Sidebar QPushButton#SidebarBtn {{
     background-color: transparent;
-    color: #5E5C64;
+    color: #475569;
     border: none;
     border-radius: 8px;
     padding: 12px 16px;
@@ -306,12 +312,18 @@ QFrame#Sidebar QPushButton#SidebarBtn {{
     font-weight: 600;
 }}
 QFrame#Sidebar QPushButton#SidebarBtn:hover {{
-    background-color: #F0F0F0;
-    color: #2E3436;
+    background-color: #E2E8F0;
+    color: #0F172A;
 }}
 QFrame#Sidebar QPushButton#SidebarBtn:checked {{
     background-color: {ACCENT_PRIMARY};
     color: #FFFFFF;
+    font-weight: bold;
+}}
+QFrame#Sidebar QPushButton#SidebarBtn:checked:hover {{
+    background-color: {ACCENT_HOVER};
+    color: #FFFFFF;
+    font-weight: bold;
 }}
 QStackedWidget {{
     background-color: #F6F6F6;
@@ -520,7 +532,7 @@ def detect_system_theme():
         out = res.stdout.strip()
         if "uint32 1" in out:
             return "dark"
-        elif "uint32 2" in out:
+        elif "uint32 2" in out or "uint32 0" in out:
             return "light"
     except Exception:
         pass
@@ -567,9 +579,9 @@ def detect_system_theme():
             capture_output=True, text=True, timeout=1
         )
         out = res.stdout.strip().strip("'\"").lower()
-        if "dark" in out:
+        if any(d in out for d in ["dark", "prefer-dark"]):
             return "dark"
-        elif "light" in out:
+        elif any(l in out for l in ["light", "prefer-light", "default"]):
             return "light"
     except Exception:
         pass
@@ -582,7 +594,7 @@ def detect_system_theme():
         out = res.stdout.strip().strip("'\"").lower()
         if "dark" in out:
             return "dark"
-        elif "light" in out:
+        else:
             return "light"
     except Exception:
         pass
@@ -598,7 +610,7 @@ def detect_system_theme():
     except Exception:
         pass
 
-    return "dark"
+    return "light"
 
 
 def detect_system_gtk_theme():

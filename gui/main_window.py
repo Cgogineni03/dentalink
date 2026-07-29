@@ -16,7 +16,7 @@ from PyQt6.QtGui import QFont, QIcon, QPainter, QPixmap, QColor, QPen
 from PyQt6.QtPrintSupport import QPrinter, QPrintPreviewDialog
 
 import database
-from gui.styles import load_theme_setting, get_theme_stylesheet, save_theme_setting, SystemThemeMonitor
+from gui.styles import load_theme_setting, get_theme_stylesheet, save_theme_setting, SystemThemeMonitor, detect_system_accent_colors, get_effective_theme_name
 from gui.components.clickable_label import ClickableLabel
 from gui.components.file_uploader import FileUploaderWidget
 from gui.components.icon_helpers import create_sidebar_toggle_icon
@@ -178,10 +178,9 @@ class DentaLinkMainWindow(QMainWindow):
         layout.setContentsMargins(30, 20, 30, 20)
         layout.setSpacing(15)
 
-        title = QLabel("Clinic Overview Dashboard")
-        title.setFont(QFont("Ubuntu", 18, QFont.Weight.Bold))
-        title.setStyleSheet("color: #0EA5E9;")
-        layout.addWidget(title)
+        self.overview_title_lbl = QLabel("Clinic Overview Dashboard")
+        self.overview_title_lbl.setFont(QFont("Ubuntu", 18, QFont.Weight.Bold))
+        layout.addWidget(self.overview_title_lbl)
 
         # 1. Section: Pending Patients
         pending_box = QGroupBox("Pending New Outpatients Queue")
@@ -650,52 +649,21 @@ class DentaLinkMainWindow(QMainWindow):
         right_layout.setSpacing(10)
         
         history_header_layout = QHBoxLayout()
-        lbl_history_title = QLabel("Revision History")
-        lbl_history_title.setFont(QFont("Ubuntu", 12, QFont.Weight.Bold))
-        lbl_history_title.setStyleSheet("color: #E2E8F0;")
+        self.lbl_history_title = QLabel("Revision History")
+        self.lbl_history_title.setFont(QFont("Ubuntu", 12, QFont.Weight.Bold))
         
-        btn_fullscreen_history = QPushButton("⛶ Expand")
-        btn_fullscreen_history.setToolTip("Open full window version history timeline")
-        btn_fullscreen_history.setStyleSheet("""
-            QPushButton {
-                background-color: #1a2032;
-                color: #E2E8F0;
-                border: 1px solid #2D2D30;
-                border-radius: 6px;
-                padding: 4px 10px;
-                font-size: 11px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #0371bb;
-                color: white;
-                border: 1px solid #0371bb;
-            }
-        """)
-        btn_fullscreen_history.clicked.connect(self.open_full_version_history_dialog)
+        self.btn_fullscreen_history = QPushButton("⛶ Expand")
+        self.btn_fullscreen_history.setToolTip("Open full window version history timeline")
+        self.btn_fullscreen_history.clicked.connect(self.open_full_version_history_dialog)
 
-        btn_close_history = QPushButton("✕")
-        btn_close_history.setFixedSize(26, 26)
-        btn_close_history.setStyleSheet("""
-            QPushButton {
-                background-color: #1a2032;
-                color: #94A3B8;
-                border: 1px solid #2D2D30;
-                border-radius: 13px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #EF4444;
-                color: white;
-                border: none;
-            }
-        """)
-        btn_close_history.clicked.connect(lambda: self.right_history_panel.setVisible(False))
+        self.btn_close_history = QPushButton("✕")
+        self.btn_close_history.setFixedSize(26, 26)
+        self.btn_close_history.clicked.connect(lambda: self.right_history_panel.setVisible(False))
 
-        history_header_layout.addWidget(lbl_history_title)
+        history_header_layout.addWidget(self.lbl_history_title)
         history_header_layout.addStretch()
-        history_header_layout.addWidget(btn_fullscreen_history)
-        history_header_layout.addWidget(btn_close_history)
+        history_header_layout.addWidget(self.btn_fullscreen_history)
+        history_header_layout.addWidget(self.btn_close_history)
         right_layout.addLayout(history_header_layout)
         
         self.history_scroll = QScrollArea()
@@ -3911,7 +3879,133 @@ class DentaLinkMainWindow(QMainWindow):
         self.current_theme = theme_name
         stylesheet = get_theme_stylesheet(theme_name)
         self.setStyleSheet(stylesheet)
+        self.update_dynamic_theme_elements()
         self.propagate_theme_to_widgets()
+
+    def update_dynamic_theme_elements(self):
+        effective_theme = get_effective_theme_name(self.current_theme)
+        primary_accent, hover_accent = detect_system_accent_colors(effective_theme)
+
+        # Overview dashboard title
+        if hasattr(self, 'overview_title_lbl') and self.overview_title_lbl:
+            self.overview_title_lbl.setStyleSheet(f"color: {primary_accent};")
+
+        # Right History Panel & Controls
+        if hasattr(self, 'right_history_panel') and self.right_history_panel:
+            if effective_theme == "light":
+                self.right_history_panel.setStyleSheet("""
+                    QWidget#RightHistoryPanel {
+                        background-color: #FFFFFF;
+                        border-left: 1px solid #E2E8F0;
+                    }
+                """)
+                if hasattr(self, 'lbl_history_title') and self.lbl_history_title:
+                    self.lbl_history_title.setStyleSheet("color: #0F172A;")
+                if hasattr(self, 'btn_fullscreen_history') and self.btn_fullscreen_history:
+                    self.btn_fullscreen_history.setStyleSheet(f"""
+                        QPushButton {{
+                            background-color: #F1F5F9;
+                            color: #0F172A;
+                            border: 1px solid #CBD5E1;
+                            border-radius: 6px;
+                            padding: 4px 10px;
+                            font-size: 11px;
+                            font-weight: bold;
+                        }}
+                        QPushButton:hover {{
+                            background-color: {primary_accent};
+                            color: white;
+                            border: 1px solid {primary_accent};
+                        }}
+                    """)
+                if hasattr(self, 'btn_close_history') and self.btn_close_history:
+                    self.btn_close_history.setStyleSheet("""
+                        QPushButton {
+                            background-color: #F1F5F9;
+                            color: #64748B;
+                            border: 1px solid #CBD5E1;
+                            border-radius: 13px;
+                            font-weight: bold;
+                        }
+                        QPushButton:hover {
+                            background-color: #EF4444;
+                            color: white;
+                            border: none;
+                        }
+                    """)
+                if hasattr(self, 'btn_toggle_history_panel') and self.btn_toggle_history_panel:
+                    self.btn_toggle_history_panel.setStyleSheet(f"""
+                        QPushButton {{
+                            background-color: #F1F5F9;
+                            border: 1px solid #CBD5E1;
+                            border-radius: 6px;
+                        }}
+                        QPushButton:hover {{
+                            background-color: #E2E8F0;
+                            border: 1px solid {primary_accent};
+                        }}
+                        QPushButton:checked {{
+                            background-color: {primary_accent};
+                            border: 1px solid {primary_accent};
+                        }}
+                    """)
+            else:
+                self.right_history_panel.setStyleSheet("""
+                    QWidget#RightHistoryPanel {
+                        background-color: #161616;
+                        border-left: 1px solid #2D2D30;
+                    }
+                """)
+                if hasattr(self, 'lbl_history_title') and self.lbl_history_title:
+                    self.lbl_history_title.setStyleSheet("color: #E2E8F0;")
+                if hasattr(self, 'btn_fullscreen_history') and self.btn_fullscreen_history:
+                    self.btn_fullscreen_history.setStyleSheet(f"""
+                        QPushButton {{
+                            background-color: #1a2032;
+                            color: #E2E8F0;
+                            border: 1px solid #2D2D30;
+                            border-radius: 6px;
+                            padding: 4px 10px;
+                            font-size: 11px;
+                            font-weight: bold;
+                        }}
+                        QPushButton:hover {{
+                            background-color: {primary_accent};
+                            color: white;
+                            border: 1px solid {primary_accent};
+                        }}
+                    """)
+                if hasattr(self, 'btn_close_history') and self.btn_close_history:
+                    self.btn_close_history.setStyleSheet("""
+                        QPushButton {
+                            background-color: #1a2032;
+                            color: #94A3B8;
+                            border: 1px solid #2D2D30;
+                            border-radius: 13px;
+                            font-weight: bold;
+                        }
+                        QPushButton:hover {
+                            background-color: #EF4444;
+                            color: white;
+                            border: none;
+                        }
+                    """)
+                if hasattr(self, 'btn_toggle_history_panel') and self.btn_toggle_history_panel:
+                    self.btn_toggle_history_panel.setStyleSheet(f"""
+                        QPushButton {{
+                            background-color: #1a2032;
+                            border: 1px solid #2D2D30;
+                            border-radius: 6px;
+                        }}
+                        QPushButton:hover {{
+                            background-color: #26314f;
+                            border: 1px solid {primary_accent};
+                        }}
+                        QPushButton:checked {{
+                            background-color: {primary_accent};
+                            border: 1px solid {primary_accent};
+                        }}
+                    """)
 
     def on_system_theme_changed(self, effective_theme):
         if self.current_theme == "system":
